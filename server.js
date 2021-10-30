@@ -50,6 +50,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var dotenv_1 = __importDefault(require("dotenv"));
 var pg_1 = require("pg");
 var express_1 = __importDefault(require("express"));
 var express_promise_router_1 = __importDefault(require("express-promise-router"));
@@ -57,6 +58,7 @@ var cors_1 = __importDefault(require("cors"));
 var bcrypt_1 = __importDefault(require("bcrypt"));
 var crypto_1 = require("crypto");
 var util_1 = require("util");
+dotenv_1.default.config();
 var cryptoRandomBytesAsync = (0, util_1.promisify)(crypto_1.randomBytes);
 // Hard limit on username length
 var USERNAME_LENGTH_LIMIT = 20;
@@ -64,7 +66,9 @@ var USERNAME_LENGTH_LIMIT = 20;
 var connectionString = process.env.DATABASE_URL;
 var db = new pg_1.Client({
     connectionString: connectionString,
-    ssl: true
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 // Set up Express
 var expressApp = (0, express_1.default)();
@@ -324,7 +328,9 @@ var Leaderboard = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 5, , 6]);
-                        return [4 /*yield*/, db.query("SELECT * FROM players WHERE username = $1", [username])];
+                        return [4 /*yield*/, db.query("SELECT * FROM players WHERE username = $1", [username])
+                            // console.log(query)
+                        ];
                     case 1:
                         query = _a.sent();
                         achievements = JSON.parse(query.rows[0].achievements);

@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import {Client} from "pg"
 import Express, { Router } from "express"
 import PromiseRouter from "express-promise-router"
@@ -8,6 +9,8 @@ import bcrypt from "bcrypt"
 import {randomBytes} from "crypto"
 import {promisify} from "util"
 
+dotenv.config();
+
 const cryptoRandomBytesAsync = promisify(randomBytes)
 
 // Hard limit on username length
@@ -17,7 +20,9 @@ const USERNAME_LENGTH_LIMIT = 20
 let connectionString = process.env.DATABASE_URL
 let db = new Client({
     connectionString: connectionString,
-    ssl: true
+    ssl: {
+        rejectUnauthorized: false
+    }
 })
 
 // Set up Express
@@ -266,6 +271,9 @@ class Leaderboard {
                 "SELECT * FROM players WHERE username = $1",
                 [username]
             )
+
+            // console.log(query)
+
             let achievements = JSON.parse(query.rows[0].achievements)
 
             if (achievements.includes(achievement)) {
@@ -621,7 +629,7 @@ router.get(
         let nameAvailable = false
 
         if ("username" in req.query) {
-            let cred = await Auth.getCredentials(req.query.username)
+            let cred = await Auth.getCredentials(req.query.username as string)
 
             if (!cred) nameAvailable = true
         }
@@ -766,10 +774,10 @@ router.get(
         let mode: KnownGameMode, limit = 50, legit = 0, frame: LeaderboardTimeframe = "all"
         let output = []
 
-        if ("mode" in req.query) mode = req.query.mode
+        if ("mode" in req.query) mode = req.query.mode as KnownGameMode
         if ("limit" in req.query) limit = +req.query.limit
         if ("legit" in req.query) legit = +req.query.legit
-        if ("timeframe" in req.query) frame = req.query.timeframe
+        if ("timeframe" in req.query) frame = req.query.timeframe as LeaderboardTimeframe
 
         if (mode && limit) {
             let scores = await Leaderboard.getModeScores(mode, limit, !!legit, frame)
@@ -856,7 +864,7 @@ router.get(
         let output = []
 
         if ("username" in req.query) {
-            output = await Leaderboard.getPlayerScores(req.query.username)
+            output = await Leaderboard.getPlayerScores(req.query.username as string)
         }
 
         RequestUtil.respond(res, {
@@ -872,7 +880,7 @@ router.get(
         let output = []
 
         if ("username" in req.query) {
-            output = await Leaderboard.getPlayerAchievements(req.query.username)
+            output = await Leaderboard.getPlayerAchievements(req.query.username as string)
         }
 
         RequestUtil.respond(res, {
