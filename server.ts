@@ -272,8 +272,6 @@ class Leaderboard {
                 [username]
             )
 
-            console.log(query)
-
             let achievements = JSON.parse(query.rows[0].achievements)
 
             if (achievements.includes(achievement)) {
