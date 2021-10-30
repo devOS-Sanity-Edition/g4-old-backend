@@ -328,11 +328,10 @@ var Leaderboard = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 5, , 6]);
-                        return [4 /*yield*/, db.query("SELECT * FROM players WHERE username = $1", [username])
-                            // console.log(query)
-                        ];
+                        return [4 /*yield*/, db.query("SELECT * FROM players WHERE username = $1", [username])];
                     case 1:
                         query = _a.sent();
+                        console.log(query);
                         achievements = JSON.parse(query.rows[0].achievements);
                         if (!achievements.includes(achievement)) return [3 /*break*/, 2];
                         return [2 /*return*/, false];
